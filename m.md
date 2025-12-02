@@ -1684,3 +1684,19 @@ tree -L 2 -I "__pycache__|*.pyc|node_modules|.git"
 مدیریت نشست (Session Management)
 
 داشبورد ادمین واقعی
+
+
+
+# 1. ایجاد migrations
+python manage.py makemigrations accounts
+
+# 2. اعمال migrations
+python manage.py migrate
+
+# 3. ایجاد کاربر ادمین (اولین بار)
+python manage.py createsuperuser
+
+# 4. تست مدل‌ها
+python manage.py shell
+
+
