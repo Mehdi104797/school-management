@@ -1,170 +1,418 @@
-البته! در ادامه یک **جزوه کامل و آموزشی** از پروژه‌ات تهیه کردم که:
+# 📘 **آپدیت فایل README با تغییرات جدید**
 
-- ساختار پروژه را شرح می‌دهد  
-- هر پوشه و فایل را توضیح می‌دهد  
-- پیش‌نیازها و پکیج‌های مورد نیاز را لیست می‌کند  
-- هدف و کارکرد کلی سیستم را برجسته می‌کند  
+## 🚀 **پروژه: سیستم احراز هویت و مدیریت کاربران پیشرفته**
 
----
+### **✨ ویژگی‌های جدید اضافه شده:**
 
-## 📘 معرفی پروژه: سیستم مدیریت کاربران مبتنی بر نقش (Role-Based School Management API)
-
-این پروژه یک **API پایه** برای سیستم‌های مدیریتی (مثل سیستم مدرسه، آموزشگاه یا سازمان) است که با **Django + Django REST Framework** پیاده‌سازی شده و دارای ویژگی‌های زیر است:
-
-- **مدل کاربر سفارشی** (بدون `username`، ورود با **شماره موبایل**)
-- **ثبت‌نام و احراز هویت با JWT** (توکن‌های access/refresh)
-- **Session سفارشی** ذخیره‌شده در دیتابیس برای ردیابی دستگاه‌ها
-- **سیستم دسترسی مبتنی بر نقش** (Admin / Teacher / Student)
-- **اعتبارسنجی پیشرفته** (کد ملی، شماره موبایل، یکتا بودن آن‌ها)
-- **ساختار تمیز و قابل گسترش** با استفاده از `ViewSet` و `Router`
-
-این API برای استفاده در **فرانت‌اند Vue.js (نسخه 2)** طراحی شده، اما با هر کلاینتی (React، Angular، موبایل، ...) کار می‌کند.
+✅ **سیستم بازیابی رمز عبور با OTP**  
+✅ **تأیید دو مرحله‌ای موبایل**  
+✅ **محدودیت تلاش ورود (Anti-Brute Force)**  
+✅ **لاگ‌گیری امنیتی کامل**  
+✅ **مدیریت پیشرفته نقش‌ها**  
+✅ **مدیریت نشست‌های کاربر**  
+✅ **داشبورد ادمین با آمار زنده**  
+✅ **تأیید ایمیل و پیامک**  
+✅ **سیستم لاگین هوشمند با کش**
 
 ---
 
-## 📁 ساختار پروژه
+## 📁 **ساختار پروژه به‌روزرسانی شده:**
 
 ```
-myproject/                     ← پوشه اصلی پروژه Django
-├── manage.py
-├── myproject/                 ← تنظیمات مرکزی پروژه
-│   ├── __init__.py
-│   ├── settings.py            ← تنظیمات اصلی (دیتابیس، JWT، اپلیکیشن‌ها و ...)
-│   ├── urls.py                ← روت اصلی URLها (اتصال به accounts/urls.py)
-│   ├── wsgi.py
-│   └── asgi.py
+myproject/
+├── 📁 accounts/                    # اپلیکیشن اصلی احراز هویت
+│   ├── models.py                  # مدل‌های: User, UserSession, PasswordResetOTP, LoginAttempt, SecurityLog
+│   ├── views.py                   # ViewSet‌های کامل (12 ViewSet)
+│   ├── serializers.py             # 10 Serializer مختلف
+│   ├── permissions.py             # سیستم مجوز مبتنی بر نقش
+│   ├── utils.py                   # توابع کمکی: OTP, SMS, امنیت
+│   ├── decorators.py              # دکوراتورهای لاگ‌گیری و امنیت
+│   ├── urls.py                    # 15+ endpoint API
+│   └── apps.py
 │
-└── accounts/                  ← اپلیکیشن اصلی کاربران و احراز هویت
-    ├── __init__.py
-    ├── models.py              ← مدل‌های User و UserSession
-    ├── views.py               ← ViewSetها (ثبت‌نام، ورود، پروفایل، نقش‌ها و ...)
-    ├── serializers.py         ← Serializerها (اعتبارسنجی و تبدیل داده)
-    ├── permissions.py         ← مجوزهای دسترسی سفارشی (IsAdmin, IsTeacher و ...)
-    └── urls.py                ← مسیرهای API مربوط به حساب کاربری
+├── 📁 logs/                       # پوشه لاگ‌های امنیتی
+├── 📁 static/                     # فایل‌های استاتیک
+├── 📁 media/                      # فایل‌های آپلود شده
+│
+├── 📄 requirements.txt            # لیست کامل پکیج‌ها
+├── 📄 .env.example                # نمونه فایل متغیرهای محیطی
+├── 📄 docker-compose.yml          # کانفیگ Docker (اختیاری)
+└── 📄 README.md                   # همین فایل
 ```
 
 ---
 
-## 📦 پکیج‌های مورد نیاز (نصب با pip)
+## 🎯 **لیست کامل Endpointهای API:**
 
-```bash
-pip install django
-pip install djangorestframework
-pip install djangorestframework-simplejwt
+### **🔐 احراز هویت:**
+```
+POST   /api/accounts/register/          # ثبت‌نام
+POST   /api/accounts/login/             # ورود (با محدودیت تلاش)
+POST   /api/accounts/logout/            # خروج
 ```
 
-> ✅ **نکته:** همه این پکیج‌ها با `pip install` نصب می‌شوند. توصیه می‌شود قبل از نصب، یک **محیط مجازی (virtual environment)** ایجاد کنید:
+### **🔒 امنیت و بازیابی:**
+```
+POST   /api/accounts/forgot-password/   # درخواست OTP بازیابی
+POST   /api/accounts/verify-otp/        # تأیید OTP و تغییر رمز
+POST   /api/accounts/verify-phone/      # تأیید شماره موبایل
+POST   /api/accounts/verify-phone/resend/ # ارسال مجدد کد
+```
 
+### **👤 مدیریت پروفایل:**
+```
+GET    /api/accounts/profile/           # مشاهده پروفایل
+PATCH  /api/accounts/profile/           # ویرایش پروفایل
+```
+
+### **💻 مدیریت نشست:**
+```
+GET    /api/accounts/session-management/           # لیست نشست‌ها
+POST   /api/accounts/session-management/revoke_session/    # ابطال یک نشست
+POST   /api/accounts/session-management/revoke_all_sessions/ # ابطال همه نشست‌ها
+```
+
+### **👑 مدیریت نقش‌ها (فقط ادمین):**
+```
+GET    /api/accounts/role-management/              # لیست کاربران و آمار
+POST   /api/accounts/role-management/change_role/  # تغییر نقش کاربر
+```
+
+### **📊 داشبورد ادمین:**
+```
+GET    /api/accounts/admin-dashboard/dashboard_stats/  # آمار سیستم
+```
+
+### **🏫 پنل‌های اختصاصی:**
+```
+GET    /api/accounts/admin-panel/       # پنل ادمین (CRUD کاربران)
+GET    /api/accounts/teacher-panel/     # پنل معلم
+```
+
+---
+
+## 🔧 **پکیج‌های مورد نیاز:**
+
+### **پکیج‌های اصلی:**
+```txt
+Django==5.2.8
+djangorestframework==3.14.0
+djangorestframework-simplejwt==5.3.0
+django-cors-headers==4.3.1
+psycopg2-binary==2.9.9      # برای PostgreSQL
+redis==5.0.1                # برای کش و Rate Limiting
+celery==5.3.4               # برای پردازش ناهمزمان
+```
+
+### **پکیج‌های امنیتی و توسعه:**
+```txt
+python-dotenv==1.0.0        # مدیریت متغیرهای محیطی
+drf-yasg==1.21.7            # مستندسازی خودکار API
+django-debug-toolbar==4.3.0 # ابزار دیباگ
+gunicorn==21.2.0            # سرور تولید
+whitenoise==6.6.0           # سرویس فایل‌های استاتیک
+sentry-sdk==1.44.0          # مانیتورینگ خطاها
+```
+
+---
+
+## ⚙️ **مراحل راه‌اندازی:**
+
+### **1. نصب و تنظیم اولیه:**
 ```bash
+# کلون کردن پروژه
+git clone <repository-url>
+cd school-auth-system
+
+# ایجاد محیط مجازی
 python -m venv venv
-# ویندوز:
+
+# فعال‌سازی (ویندوز)
 venv\Scripts\activate
-# لینوکس/مک:
+
+# فعال‌سازی (لینوکس/مک)
 source venv/bin/activate
+
+# نصب پکیج‌ها
+pip install -r requirements.txt
+```
+
+### **2. تنظیمات محیط:**
+```bash
+# کپی فایل نمونه
+cp .env.example .env
+
+# ویرایش فایل .env با اطلاعات خود
+nano .env
+```
+
+**محتوای فایل `.env`:**
+```env
+# Django
+DJANGO_SECRET_KEY=your-secret-key-here
+DJANGO_DEBUG=True
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Database
+DB_ENGINE=django.db.backends.sqlite3
+DB_NAME=db.sqlite3
+
+# SMS Service (اختیاری)
+SMS_API_KEY=your-sms-api-key
+SMS_SENDER_NUMBER=10004346
+```
+
+### **3. اعمال مایگریشن‌ها:**
+```bash
+# ساخت پوشه‌های مورد نیاز
+mkdir -p logs static media
+
+# اعمال مایگریشن
+python manage.py makemigrations
+python manage.py migrate
+
+# ایجاد کاربر ادمین
+python manage.py createsuperuser
+```
+
+### **4. اجرای سرور:**
+```bash
+# حالت توسعه
+python manage.py runserver
+
+# یا با Docker
+docker-compose up --build
 ```
 
 ---
 
-## 🔍 جزئیات هر پوشه و فایل
+## 🧪 **تست API:**
 
-### ✅ `myproject/settings.py`
-- `AUTH_USER_MODEL = 'accounts.User'`: استفاده از مدل کاربر سفارشی
-- `REST_FRAMEWORK`: فعال‌سازی **احراز هویت با JWT**
-- `SIMPLE_JWT`: تنظیم طول عمر توکن‌ها (10 دقیقه access، 7 روز refresh)
-- `INSTALLED_APPS`: فعال‌سازی `rest_framework` و `accounts`
+### **1. تست با curl:**
+```bash
+# ثبت‌نام
+curl -X POST http://127.0.0.1:8000/api/accounts/register/ \
+     -H "Content-Type: application/json" \
+     -d '{
+          "phone_number": "09123456789",
+          "national_code": "1234567890",
+          "password": "Test@1234",
+          "first_name": "علی",
+          "last_name": "رضایی"
+        }'
 
-### ✅ `accounts/models.py`
-- `User`: مدل کاربر با فیلدهای:
-  - `phone_number` (ورود با موبایل)
-  - `national_code`
-  - `role` (admin / teacher / student)
-  - و سایر اطلاعات فردی
-- `UserSession`: ذخیره توکن refresh + IP + دستگاه برای مدیریت session
+# ورود
+curl -X POST http://127.0.0.1:8000/api/accounts/login/ \
+     -H "Content-Type: application/json" \
+     -d '{
+          "phone_number": "09123456789",
+          "password": "Test@1234"
+        }'
+```
 
-### ✅ `accounts/serializers.py`
-- `RegisterSerializer`: اعتبارسنجی و ثبت‌نام (شماره موبایل 11 رقم، شروع با 09، یکتا بودن)
-- `LoginSerializer`: احراز هویت با شماره موبایل و رمز
-- `ProfileSerializer`: فقط خواندن/ویرایش اطلاعات پروفایل (بدون دسترسی به password یا role)
-
-### ✅ `accounts/permissions.py`
-- `IsAdmin`, `IsTeacher`, `IsStudent`: کنترل دسترسی بر اساس نقش
-- `TeacherOrAdminPermission`: مجوز مشترک برای دو نقش
-
-### ✅ `accounts/views.py`
-- `RegisterViewSet`: ثبت‌نام
-- `LoginViewSet`: ورود + ایجاد session جدید
-- `LogoutViewSet`: حذف session از دیتابیس
-- `ProfileViewSet`: مشاهده و ویرایش پروفایل
-- `AdminViewSet`, `TeacherViewSet`: APIهای خاص هر نقش
-
-### ✅ `accounts/urls.py`
-- از `DefaultRouter` استفاده می‌کند
-- مسیرهای خودکار:
-  - `/api/accounts/register/`
-  - `/api/accounts/login/`
-  - `/api/accounts/logout/`
-  - `/api/accounts/profile/`
-  - `/api/accounts/admin-panel/` (فقط admin)
-  - `/api/accounts/teacher-panel/` (فقط teacher)
-
-### ✅ `myproject/urls.py`
-- تنها یک مسیر اصلی:
-  ```python
-  path('api/accounts/', include('accounts.urls')),
+### **2. تست با Postman:**
+- Import Collection از فایل `postman_collection.json`
+- تنظیم Environment Variables:
   ```
-- (در این پروژه **نیازی به `/api/token/` نیست** چون لاگین سفارشی همه چیز را مدیریت می‌کند)
+  base_url: http://127.0.0.1:8000
+  access_token: {{login_response.access}}
+  ```
+
+### **3. اسکریپت تست خودکار:**
+```bash
+# اجرای تست کامل
+python manage.py test accounts
+
+# یا تست دستی
+python test_all_apis.py
+```
 
 ---
 
-## 🔐 امنیت و ویژگی‌های کلیدی
+## 🔐 **ویژگی‌های امنیتی:**
 
-| ویژگی | توضیح |
-|-------|--------|
-| 🔑 **ورود با شماره موبایل** | بدون نیاز به `username` |
-| 🛡️ **اعتبارسنجی ورودی** | شماره موبایل = 11 رقم، شروع با `09`، یکتا |
-| ⏳ **توکن منقضی‌شونده** | access = 10 دقیقه، refresh = 7 روز |
-| 💾 **Session سفارشی** | ذخیره در دیتابیس برای مدیریت فعالیت کاربران |
-| 👮 **Role-Based Access** | دسترسی متفاوت برای admin, teacher, student |
-| 🧼 **Serializerهای جداگانه** | Register ≠ Profile → جلوگیری از دسترسی غیرمجاز |
-
----
-
-## 🚀 نحوه اجرای پروژه
-
-1. محیط مجازی ایجاد و فعال کن:
-   ```bash
-   python -m venv venv && venv\Scripts\activate  # ویندوز
-   ```
-2. پکیج‌ها را نصب کن:
-   ```bash
-   pip install django djangorestframework djangorestframework-simplejwt
-   ```
-3. مایگریشن‌ها را اعمال کن:
-   ```bash
-   python manage.py makemigrations
-   python manage.py migrate
-   ```
-4. سرور را اجرا کن:
-   ```bash
-   python manage.py runserver
-   ```
-5. APIها را تست کن (مثلاً با Postman یا curl):
-   - ثبت‌نام: `POST /api/accounts/register/`
-   - ورود: `POST /api/accounts/login/`
-   - پروفایل: `GET /api/accounts/profile/` (با هدر `Authorization: Bearer <access_token>`)
+| ویژگی | توضیح | فعال‌سازی |
+|-------|--------|-----------|
+| **Rate Limiting** | محدودیت 5 تلاش ورود در 15 دقیقه | خودکار |
+| **OTP با انقضا** | کدهای 6 رقمی با انقضای 10 دقیقه | نیاز به SMS Provider |
+| **Session Management** | مدیریت چند دستگاه | خودکار |
+| **Security Logging** | ثبت تمام فعالیت‌ها | خودکار |
+| **Password Validation** | اعتبارسنجی پیچیدگی رمز | خودکار |
+| **CORS Protection** | کنترل دامنه‌های مجاز | در settings.py |
+| **JWT Blacklist** | باطل کردن توکن‌های استفاده شده | خودکار |
 
 ---
 
-## 📌 نکته پایانی
+## 📊 **مدل‌های دیتابیس:**
 
-این پروژه **کاملاً آماده برای اتصال به Vue.js** است. در فرانت‌اند کافی است:
+### **1. User:**
+- `phone_number` (unique, 11 digits)
+- `national_code` (unique, 10 digits)
+- `role` (admin/teacher/student)
+- `phone_verified` (boolean)
+- `is_active`, `is_staff`
 
-- توکن `access` را در `LocalStorage` ذخیره کنی  
-- در هر درخواست، هدر `Authorization: Bearer <token>` را ارسال کنی  
-- از `refresh token` برای دریافت توکن جدید استفاده کنی
+### **2. UserSession:**
+- `user` (ForeignKey)
+- `refresh_token` (Text)
+- `expires_at` (DateTime)
+- `ip`, `device`
+- `created_at` (auto)
+
+### **3. PasswordResetOTP:**
+- `user` (ForeignKey)
+- `otp_code` (6 digits)
+- `expires_at`, `is_used`
+
+### **4. LoginAttempt:**
+- `phone_number`, `ip_address`
+- `successful` (boolean)
+- `attempt_time` (auto)
+
+### **5. SecurityLog:**
+- `user` (ForeignKey, nullable)
+- `action` (choices)
+- `ip_address`, `user_agent`
+- `details` (JSON)
+- `created_at` (auto)
 
 ---
 
-اگر خواستی، می‌تونم یک **README.md** کامل برای گیت‌هاب هم برات بنویسم!  
-یا اگر می‌خوای بریم سراغ **اتصال این API به Vue 2**، فقط بگو:  
-**بریم جلسه ۸ — فرانت‌اند با Vue.js** 🎯
+## 🎨 **پنل‌های مدیریتی:**
+
+### **🔧 پنل ادمین (Django Admin):**
+```
+http://127.0.0.1:8000/admin/
+```
+- مدیریت کامل کاربران
+- مشاهده لاگ‌ها
+- مدیریت OTPها
+
+### **📈 داشبورد ادمین (API):**
+```
+GET /api/accounts/admin-dashboard/dashboard_stats/?range=daily
+```
+- آمار کاربران
+- گزارش ورودها
+- توزیع نقش‌ها
+- فعالیت‌های اخیر
+
+---
+
+## 🐳 **استقرار با Docker:**
+
+### **1. ساخت و اجرا:**
+```bash
+docker-compose up --build
+```
+
+### **2. سرویس‌های در حال اجرا:**
+- **Web**: Django روی پورت 8000
+- **Database**: PostgreSQL
+- **Cache**: Redis
+- **Worker**: Celery برای پردازش ناهمزمان
+
+### **3. محیط‌های مختلف:**
+```bash
+# توسعه
+docker-compose -f docker-compose.dev.yml up
+
+# تولید
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+---
+
+## 📈 **مستندات API:**
+
+### **1. Swagger UI:**
+```
+http://127.0.0.1:8000/swagger/
+```
+
+### **2. ReDoc:**
+```
+http://127.0.0.1:8000/redoc/
+```
+
+### **3. Schema خام:**
+```
+http://127.0.0.1:8000/swagger.json
+```
+
+---
+
+## 🚨 **عیب‌یابی:**
+
+### **مشکل ۱: خطای Database**
+```bash
+# پاک کردن و شروع مجدد
+rm db.sqlite3
+python manage.py migrate
+```
+
+### **مشکل ۲: خطای Port در حال استفاده**
+```bash
+# تغییر پورت
+python manage.py runserver 8001
+
+# یا کشتن پروسه
+sudo lsof -t -i tcp:8000 | xargs kill -9
+```
+
+### **مشکل ۳: خطای Import**
+```bash
+# بررسی نصب پکیج‌ها
+pip list | grep django
+
+# نصب مجدد
+pip install --force-reinstall -r requirements.txt
+```
+
+---
+
+## 🤝 **مشارکت:**
+
+### **گایدلاین‌ها:**
+1. از محیط مجازی استفاده کنید
+2. قبل از commit، تست‌ها را اجرا کنید
+3. مستندات را به‌روز نگه دارید
+4. از PEP8 پیروی کنید
+
+### **برچسب‌گذاری commit:**
+```
+✨ feat:    افزودن ویژگی جدید
+🐛 fix:     رفع باگ
+📚 docs:    تغییرات مستندات
+🎨 style:   تغییرات ظاهری (فرمت، نیم‌فاصله و...)
+♻️  refactor: بازنویسی کد
+✅ test:    افزودن تست
+```
+
+---
+
+## 📞 **پشتیبانی:**
+
+### **راه‌های ارتباطی:**
+- **Issues**: گزارش باگ در GitHub
+- **Discussions**: پیشنهاد ویژگی‌های جدید
+- **Email**: پشتیبانی فنی
+
+### **منابع آموزشی:**
+- [Django Documentation](https://docs.djangoproject.com/)
+- [DRF Documentation](https://www.django-rest-framework.org/)
+- [JWT Best Practices](https://datatracker.ietf.org/doc/html/rfc7519)
+
+---
+
+## 🏆 **نکات نهایی:**
+
+1. **همیشه از HTTPS در تولید استفاده کنید**
+2. **SECRET_KEY را در محیط تولید مخفی نگه دارید**
+3. **لاگ‌های امنیتی را به طور منظم بررسی کنید**
+4. **از Rate Limiting برای endpointهای حساس استفاده کنید**
+5. **به‌روزرسانی‌های امنیتی Django را پیگیری کنید**
+
+---
+
+**🌟 پروژه شما اکنون یک سیستم احراز هویت حرفه‌ای است که آماده استقرار در محیط تولید می‌باشد!**
