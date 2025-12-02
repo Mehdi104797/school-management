@@ -222,7 +222,7 @@ class LoginViewSet(viewsets.GenericViewSet):
             refresh_token=str(refresh),
             ip=ip_address,
             device=request.META.get('HTTP_USER_AGENT', '')[:200],
-            expires_at=timezone.now() + timedelta(days=7)
+            # expires_at=timezone.now() + timedelta(days=7)
         )
         
         # مرحله ۷: بازگرداندن پاسخ

@@ -199,6 +199,7 @@ class UserSession(models.Model):
     refresh_token = models.TextField(verbose_name="توکن بازیابی")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ایجاد")
     ip = models.GenericIPAddressField(null=True, blank=True, verbose_name="آی‌پی")
+    expires_at = models.DateTimeField(verbose_name="تاریخ انقضا")
     device = models.CharField(
         max_length=200, 
         null=True, 
@@ -214,7 +215,13 @@ class UserSession(models.Model):
     def __str__(self):
         """نمایش رشته‌ای session"""
         return f"نشست {self.user.phone_number} - {self.created_at.strftime('%Y-%m-%d %H:%M')}"
-
+    def save(self, *args, **kwargs):
+        if not self.expires_at:
+            # پیش‌فرض 7 روز بعد
+            from django.utils import timezone
+            from datetime import timedelta
+            self.expires_at = timezone.now() + timedelta(days=7)
+        super().save(*args, **kwargs)
 
 # ----------------------------------------------------------------------
 # PasswordResetOTP - مدیریت OTP بازیابی رمز عبور
